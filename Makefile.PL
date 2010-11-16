@@ -7,12 +7,13 @@ all_from 'orepan.pl';
 readme_markdown_from 'orepan.pl';
 
 requires 'Archive::Peek';
-requires 'JSON';
+requires 'JSON' => 2.27;
 requires 'YAML::Tiny';
 requires 'List::MoreUtils';
-requires 'Log::Minimal';
+requires 'Log::Minimal' => 0.02;
 requires 'IO::Zlib';
 requires 'Moo';
+requires 'Path::Class';
 
 install_script 'orepan.pl';
 
