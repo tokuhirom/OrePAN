@@ -1,14 +1,20 @@
 # NAME
 
-OrePAN -
+orepan.pl - my own Perl Archive Network.
 
 # SYNOPSIS
 
-  use OrePAN;
+    % orepan.pl --destination=/path/to/repository Foo-0.01.tar.gz
+        --pause=FOO
+
+    # and so...
+    % cpanm --mirror-only --mirror=file:///path/to/repository Foo
 
 # DESCRIPTION
 
-OrePAN is
+OrePAN is yet another DarkPAN repository manager.
+
+OrePAN is highly simple and __limited__. OrePAN supports only [App::cpanminus](http://search.cpan.org/perldoc?App::cpanminus). Because I'm using cpanm for daily jobs.
 
 # AUTHOR
 

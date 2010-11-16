@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use utf8;
 use lib 'lib';
+use 5.008001;
 use OrePAN::Package::Index;
 use OrePAN::Archive;
 
@@ -14,6 +15,8 @@ use File::Basename;
 use Path::Class;
 use File::Copy;
 use Log::Minimal;
+
+our $VERSION='0.01';
 
 my $pauseid = 'DUMMY';
 GetOptions(
@@ -52,9 +55,37 @@ $index->save();
 
 __END__
 
+=encoding utf8
+
+=head1 NAME
+
+orepan.pl - my own Perl Archive Network.
+
 =head1 SYNOPSIS
 
     % orepan.pl --destination=/path/to/repository Foo-0.01.tar.gz
         --pause=FOO
 
+    # and so...
+    % cpanm --mirror-only --mirror=file:///path/to/repository Foo
 
+=head1 DESCRIPTION
+
+OrePAN is yet another DarkPAN repository manager.
+
+OrePAN is highly simple and B<limited>. OrePAN supports only L<App::cpanminus>. Because I'm using cpanm for daily jobs.
+
+=head1 AUTHOR
+
+Tokuhiro Matsuno E<lt>tokuhirom AAJKLFJEF GMAIL COME<gt>
+
+=head1 SEE ALSO
+
+=head1 LICENSE
+
+Copyright (C) Tokuhiro Matsuno
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut

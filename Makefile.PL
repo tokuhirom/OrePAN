@@ -3,8 +3,8 @@ use Module::Install::AuthorTests;
 use Module::Install::ReadmeMarkdownFromPod;
 
 name 'OrePAN';
-all_from 'lib/OrePAN.pm';
-reqadme_markdown_from 'lib/OrePAN.pm';
+all_from 'orepan.pl';
+readme_markdown_from 'orepan.pl';
 
 requires 'Archive::Peek';
 requires 'JSON';
