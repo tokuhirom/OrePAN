@@ -12,7 +12,6 @@ has filename => (
 
 has data => (
     is      => 'ro',
-    isa     => 'HashRef',
     default => sub { +{} },
 );
 

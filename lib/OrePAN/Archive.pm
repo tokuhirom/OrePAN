@@ -16,7 +16,6 @@ has filename => (
 
 has _archive => (
     is => 'ro',
-    isa => 'Archive::Peek',
     lazy => 1,
     default => sub {
         my $self = shift;
@@ -27,7 +26,6 @@ has _archive => (
 
 has meta => (
     is      => 'ro',
-    isa     => 'HashRef',
     lazy => 1,
     default => sub {
         my $self = shift;
@@ -51,7 +49,6 @@ has meta => (
 
 has name => (
     is => 'ro',
-    isa => 'Str',
     lazy => 1,
     default => sub {
         my $self = shift;

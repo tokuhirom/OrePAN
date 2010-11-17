@@ -15,6 +15,8 @@ use File::Basename;
 use Path::Class;
 use File::Copy;
 use Log::Minimal;
+use LWP::UserAgent;
+use File::Temp;
 
 our $VERSION='0.01';
 
@@ -28,6 +30,19 @@ pod2usage() unless $destination;
 my ($pkg) = @ARGV;
 $pkg or pod2usage();
 
+my $tmp;
+if ($pkg =~ m{^https?://}) {
+    infof("retrieve from $pkg");
+    my $ua = LWP::UserAgent->new();
+    my $res = $ua->get($pkg);
+    die "cannot get $pkg: " . $res->status_line unless $res->is_success;
+    my $filename = $res->filename;
+    my ($suffix) = ($filename =~ m{(\..+)$});
+    $tmp = File::Temp->new(UNLINK => 1, SUFFIX => $suffix);
+    print {$tmp} $res->content;
+    $tmp->flush();
+    $pkg = $tmp->filename;
+}
 my $archive = OrePAN::Archive->new(filename => $pkg);
 
 infof("put the archive to repository");
@@ -65,6 +80,7 @@ orepan.pl - my own Perl Archive Network.
 
     % orepan.pl --destination=/path/to/repository Foo-0.01.tar.gz
         --pause=FOO
+    % orepan.pl --destination=/path/to/repository https://example.com/MyModule-0.96.tar.gz
 
     # and so...
     % cpanm --mirror-only --mirror=file:///path/to/repository Foo
