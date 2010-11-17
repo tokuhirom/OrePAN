@@ -22,6 +22,8 @@ Tokuhiro Matsuno <tokuhirom AAJKLFJEF GMAIL COM>
 
 # SEE ALSO
 
+[CPAN::Mini::Inject](http://search.cpan.org/perldoc?CPAN::Mini::Inject), [App::cpanminus](http://search.cpan.org/perldoc?App::cpanminus)
+
 # LICENSE
 
 Copyright (C) Tokuhiro Matsuno

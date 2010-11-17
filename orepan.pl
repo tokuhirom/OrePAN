@@ -81,6 +81,8 @@ Tokuhiro Matsuno E<lt>tokuhirom AAJKLFJEF GMAIL COME<gt>
 
 =head1 SEE ALSO
 
+L<CPAN::Mini::Inject>, L<App::cpanminus>
+
 =head1 LICENSE
 
 Copyright (C) Tokuhiro Matsuno
