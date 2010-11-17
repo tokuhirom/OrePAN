@@ -14,6 +14,7 @@ requires 'Log::Minimal' => 0.02;
 requires 'IO::Zlib';
 requires 'Moo';
 requires 'Path::Class';
+requires 'LWP::UserAgent';
 
 install_script 'orepan.pl';
 
