@@ -6,6 +6,7 @@ orepan.pl - my own Perl Archive Network.
 
     % orepan.pl --destination=/path/to/repository Foo-0.01.tar.gz
         --pause=FOO
+    % orepan.pl --destination=/path/to/repository https://example.com/MyModule-0.96.tar.gz
 
     # and so...
     % cpanm --mirror-only --mirror=file:///path/to/repository Foo
