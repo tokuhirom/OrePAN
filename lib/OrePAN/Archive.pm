@@ -43,6 +43,7 @@ has meta => (
         }
         else {
             warnf("Archive does not contains META file");
+            return +{};
         }
     },
 );
@@ -68,20 +69,21 @@ sub _parse_version {
         if ( m{^ \s* package \s+ (\w[\w\:\']*) (?: \s+ (v?[0-9._]+) \s*)? ;  }x ) {
             $pkg = $1;
             $version = $2 if defined $2;
-        } elsif (m{\$VERSION\s*=\s*["']([0-9_.]+)['"]}) {
-            $version = $1;
+        } elsif (m{\$VERSION\s*=\s*(["']*)([0-9_.]+)\1}) {
+            $version = $2;
         } elsif (/^\s*__END__/) {
             last;
         }
         last if $pkg && $version;
     }
+    infof("parsed: %s version: %s", $pkg, $version || 'none');
     return ($pkg, $version);
 }
 
 sub get_packages {
     my ($self) = @_;
     my $meta = $self->meta || +{};
-    my $ignore_dirs = $meta->{no_index} and $meta->{no_index}->{directory} ? $meta->{no_index}->{directory} : [];
+    my $ignore_dirs = $meta->{no_index} && $meta->{no_index}->{directory} ? $meta->{no_index}->{directory} : [];
     my @ignore_dirs = ref $ignore_dirs ? @$ignore_dirs : [$ignore_dirs];
     infof("files");
     my @files = $self->_archive->files();
