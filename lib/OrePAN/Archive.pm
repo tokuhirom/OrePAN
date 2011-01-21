@@ -76,7 +76,7 @@ sub _parse_version {
         }
         last if $pkg && $version;
     }
-    infof("parsed: %s version: %s", $pkg, $version || 'none');
+    infof("parsed: %s version: %s", $pkg || 'unknown', $version || 'none');
     return ($pkg, $version);
 }
 
