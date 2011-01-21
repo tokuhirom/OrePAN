@@ -42,7 +42,7 @@ has meta => (
             YAML::Tiny::Load($archive->file($yml));
         }
         else {
-            Carp::croak("Archive does not contains META file");
+            warnf("Archive does not contains META file");
         }
     },
 );
