@@ -81,7 +81,7 @@ sub _parse_version {
 sub get_packages {
     my ($self) = @_;
     my $meta = $self->meta || +{};
-    my $ignore_dirs = $meta->{no_index}->{directory} || [];
+    my $ignore_dirs = $meta->{no_index} and $meta->{no_index}->{directory} ? $meta->{no_index}->{directory} : [];
     my @ignore_dirs = ref $ignore_dirs ? @$ignore_dirs : [$ignore_dirs];
     infof("files");
     my @files = $self->_archive->files();
