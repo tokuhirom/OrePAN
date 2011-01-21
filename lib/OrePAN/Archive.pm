@@ -35,11 +35,11 @@ has meta => (
         infof("arcive meta data");
         my @files = $archive->files();
         infof("ready to find meta");
-        if ( my ($yml) = grep /META\.yml/, @files ) {
-            YAML::Tiny::Load($archive->file($yml));
+        if ( my ($json) = grep /META.json$/, @files ) {
+             JSON::decode_json($archive->file($json));
         }
-        elsif ( my ($json) = grep /META.json$/, @files ) {
-            JSON::decode_json($archive->file($json));
+        elsif ( my ($yml) = grep /META\.yml/, @files ) {
+            YAML::Tiny::Load($archive->file($yml));
         }
         else {
             Carp::croak("Archive does not contains META file");
@@ -81,7 +81,8 @@ sub _parse_version {
 sub get_packages {
     my ($self) = @_;
     my $meta = $self->meta || +{};
-    my @ignore_dirs = @{ $meta->{no_index}->{directory} || [] };
+    my $ignore_dirs = $meta->{no_index}->{directory} || [];
+    my @ignore_dirs = ref $ignore_dirs ? @$ignore_dirs : [$ignore_dirs];
     infof("files");
     my @files = $self->_archive->files();
     infof("ok files");
