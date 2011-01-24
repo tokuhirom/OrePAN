@@ -9,7 +9,8 @@ use JSON ();
 use List::MoreUtils qw/any/;
 use Log::Minimal;
 use Module::Metadata;
-use Temp::File;
+use File::Basename;
+use File::Temp;
 use Path::Class;
 
 has filename => (
@@ -98,7 +99,7 @@ sub get_packages {
         infof("parsing: $file");
         my $tempdir = Path::Class::dir(File::Temp::tempdir(CLEANUP => 1));
         my $fh = $tempdir->file($file)->openw();
-        $fh->print($self->_archive->file($file));        
+        $fh->print($self->_archive->file(basename($file)));        
         my $module = Module::Metadata->new_from_file( $tempdir->file($file) );
         my $pkg = $module->name;
         my $ver = $module->version;
