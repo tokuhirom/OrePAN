@@ -104,8 +104,11 @@ sub get_packages {
         my $module = Module::Metadata->new_from_file( $module_file ) or next;
         my $pkg = $module->name;
         my $ver = $module->version;
+        if ( !$pkg ) {
+            ($pkg, $ver) = _parse_version($self->_archive->file($file));
+        }
         if ($pkg) {
-            $res{$pkg} = "$ver";
+            $res{$pkg} = defined $ver ? "$ver" : "";
         }
     }
     return wantarray ? %res : \%res;
