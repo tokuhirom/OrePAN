@@ -15,6 +15,7 @@ requires 'IO::Zlib';
 requires 'Moo';
 requires 'Path::Class';
 requires 'LWP::UserAgent';
+requires 'Module::Metadata';
 
 install_script 'orepan.pl';
 

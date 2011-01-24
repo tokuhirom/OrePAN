@@ -8,6 +8,9 @@ use YAML::Tiny ();
 use JSON ();
 use List::MoreUtils qw/any/;
 use Log::Minimal;
+use Module::Metadata;
+use Temp::File;
+use Path::Class;
 
 has filename => (
     is       => 'ro',
@@ -93,7 +96,12 @@ sub get_packages {
         next if any { $file =~ m{^[^/]+/$_/} } @ignore_dirs;
         next if $file !~ /\.pm$/;
         infof("parsing: $file");
-        my ($pkg, $ver) = _parse_version($self->_archive->file($file));
+        my $tempdir = Path::Class::dir(File::Temp::tempdir(CLEANUP => 1));
+        my $fh = $tempdir->file($file)->openw();
+        $fh->print($self->_archive->file($file));        
+        my $module = Module::Metadata->new_from_file( $tempdir->file($file) );
+        my $pkg = $module->name;
+        my $ver = $module->version;
         if ($pkg) {
             $res{$pkg} = $ver;
         }
