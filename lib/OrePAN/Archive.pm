@@ -90,7 +90,7 @@ sub get_packages {
     infof("ok files");
     my %res;
     for my $file (@files) {
-        next if any { $file =~ m{$_/} } @ignore_dirs;
+        next if any { $file =~ m{^[^/]+/$_/} } @ignore_dirs;
         next if $file !~ /\.pm$/;
         infof("parsing: $file");
         my ($pkg, $ver) = _parse_version($self->_archive->file($file));
