@@ -69,7 +69,7 @@ sub _parse_version {
         if ( m{^ \s* package \s+ (\w[\w\:\']*) (?: \s+ (v?[0-9._]+) \s*)? ;  }x ) {
             $pkg = $1;
             $version = $2 if defined $2;
-        } elsif (m{\$VERSION\s*=\s*(["']*)([0-9_.]+)\1}) {
+        } elsif (m{\$(?:\w[\w\:\']*::)?VERSION\s*=\s*(["']*)([0-9_.]+)\1}) {
             $version = $2;
         } elsif (/^\s*__END__/) {
             last;
