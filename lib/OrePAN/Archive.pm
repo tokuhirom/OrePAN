@@ -97,15 +97,15 @@ sub get_packages {
         next if any { $file =~ m{^[^/]+/$_/} } @ignore_dirs;
         next if $file !~ /\.pm$/;
         infof("parsing: $file");
-        my $tempdir = Path::Class::dir(File::Temp::tempdir(CLEANUP => 1));
-        my $module_file = $tempdir->file(basename($file));
-        my $fh = $module_file->openw();
-        $fh->print($self->_archive->file($file));        
-        my $module = Module::Metadata->new_from_file( $module_file ) or next;
-        my $pkg = $module->name;
-        my $ver = $module->version;
+        my ($pkg, $ver) = _parse_version($self->_archive->file($file));
         if ( !$pkg ) {
-            ($pkg, $ver) = _parse_version($self->_archive->file($file));
+            my $tempdir = Path::Class::dir(File::Temp::tempdir(CLEANUP => 1));
+            my $module_file = $tempdir->file(basename($file));
+            my $fh = $module_file->openw();
+            $fh->print($self->_archive->file($file));        
+            my $module = Module::Metadata->new_from_file( $module_file ) or next;
+             $pkg = $module->name;
+             $ver = $module->version;
         }
         if ($pkg) {
             $res{$pkg} = defined $ver ? "$ver" : "";
