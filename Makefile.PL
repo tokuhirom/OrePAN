@@ -18,6 +18,7 @@ requires 'LWP::UserAgent';
 requires 'Module::Metadata';
 
 install_script 'orepan.pl';
+install_script 'orepan_index.pl';
 
 tests 't/*.t t/*/*.t t/*/*/*.t t/*/*/*/*.t';
 test_requires 'Test::More' => 0.96; # done_testing, subtest
