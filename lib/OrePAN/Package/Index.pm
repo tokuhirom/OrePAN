@@ -2,7 +2,7 @@ package OrePAN::Package::Index;
 use strict;
 use warnings;
 use utf8;
-use Moo;
+use Mouse;
 use IO::Zlib;
 
 has filename => (
@@ -39,7 +39,7 @@ sub add {
 
 sub save {
     my ($self, ) = @_;
-    my $fh = IO::Zlib->new($self->filename, 'wb');
+    my $fh = IO::Zlib->new($self->filename, 'wb') or die $!;
     print {$fh} "File:         02packages.details.txt\n\n";
     for my $key (sort keys %{$self->data}) {
         print {$fh} sprintf("%s\t%s\t%s\n", $key, $self->{data}->{$key}->[0] || 'undef', $self->{data}->{$key}->[1]);

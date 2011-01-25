@@ -1,9 +1,10 @@
 package OrePAN::Archive;
+
 use strict;
 use warnings;
 use utf8;
-use Moo;
-use Archive::Peek ();
+use Mouse;
+use Mouse::Util::TypeConstraints;
 use YAML::Tiny ();
 use JSON ();
 use List::MoreUtils qw/any/;
@@ -12,19 +13,55 @@ use Module::Metadata;
 use File::Basename;
 use File::Temp;
 use Path::Class;
+use File::Which qw(which);  
+use Cwd qw/realpath getcwd/;
+
+subtype 'File' => as class_type('Path::Class::File');
+coerce 'File' => from 'Str' => via { Path::Class::file(realpath($_)) };
+
+subtype 'Dir' => as class_type('Path::Class::Dir');
+coerce 'Dir' => from 'Str' => via { Path::Class::dir(realpath($_)) };
+
 
 has filename => (
     is       => 'ro',
+    isa      => 'File',
+    coerce   => 1,
     required => 1,
 );
 
-has _archive => (
+has archive => (
     is => 'ro',
     lazy => 1,
     default => sub {
         my $self = shift;
         debugf('extering');
-        Archive::Peek->new(filename => $self->filename);
+        $self->filename =~ m!\.zip$!i ?
+            $self->unzip($self->filename)
+          : $self->untar($self->filename);
+    },
+);
+
+has tmpdir => (
+    is => 'ro',
+    lazy => 1,
+    default => sub {
+        Path::Class::dir(File::Temp::tempdir(CLEANUP => 0))
+    },
+);
+
+has files => (
+    is => 'ro',
+    lazy => 1,
+    default => sub {
+        my $self = shift;
+        my @files;
+        $self->archive->recurse(callback => sub {
+            my $path = shift;
+            return if $path->is_dir;
+            push @files, $path;
+        });
+        return \@files;
     },
 );
 
@@ -33,17 +70,17 @@ has meta => (
     lazy => 1,
     default => sub {
         my $self = shift;
-
+        my @files = @{$self->files};
         infof("retrieve meta data");
-        my $archive = $self->_archive;
-        infof("arcive meta data");
-        my @files = $archive->files();
-        infof("ready to find meta");
         if ( my ($json) = grep /META.json$/, @files ) {
-             JSON::decode_json($archive->file($json));
+             JSON::decode_json($json->slurp);
         }
         elsif ( my ($yml) = grep /META\.yml/, @files ) {
-            YAML::Tiny::Load($archive->file($yml));
+            eval{
+                # json format yaml
+                my $data = $yml->slurp;
+                YAML::Tiny::Load($data) || JSON::decode_json($data);
+            };
         }
         else {
             warnf("Archive does not contains META file");
@@ -61,7 +98,7 @@ has name => (
     },
 );
 
-sub _parse_version {
+sub _parse_version($) {
     my $content = shift;
     my $inpod = 0;
     my $pkg;
@@ -90,20 +127,18 @@ sub get_packages {
     my $ignore_dirs = $meta->{no_index} && $meta->{no_index}->{directory} ? $meta->{no_index}->{directory} : [];
     my @ignore_dirs = ref $ignore_dirs ? @$ignore_dirs : [$ignore_dirs];
     infof("files");
-    my @files = $self->_archive->files();
+    my $archive = $self->archive;
+    my @files = @{$self->files()};
     infof("ok files");
     my %res;
     for my $file (@files) {
-        next if any { $file =~ m{^[^/]+/$_/} } @ignore_dirs;
+        my $quote = quotemeta($archive);
+        next if any { $file =~ m{^$quote/$_/} } @ignore_dirs;
         next if $file !~ /\.pm$/;
         infof("parsing: $file");
-        my ($pkg, $ver) = _parse_version($self->_archive->file($file));
+        my ($pkg, $ver) = _parse_version($file->slurp);
         if ( !$pkg ) {
-            my $tempdir = Path::Class::dir(File::Temp::tempdir(CLEANUP => 1));
-            my $module_file = $tempdir->file(basename($file));
-            my $fh = $module_file->openw();
-            $fh->print($self->_archive->file($file));        
-            my $module = Module::Metadata->new_from_file( $module_file ) or next;
+            my $module = Module::Metadata->new_from_file( $file ) or next;
              $pkg = $module->name;
              $ver = $module->version;
         }
@@ -112,6 +147,71 @@ sub get_packages {
         }
     }
     return wantarray ? %res : \%res;
+}
+
+sub untar {
+    my $self = shift;
+    my $tarfile = shift;
+    if ( my $tar = which('tar') ) {
+        my $tempdir = $self->tmpdir;
+        my $guard = OrePAN::Archive::Chdir->new($tempdir);
+        
+        my $xf = "xf";
+        my $ar = $tarfile =~ /bz2$/ ? 'j' : 'z';
+        my($root, @others) = `$tar tf$ar $tarfile`
+            or return die "Bad archive $tarfile";
+        chomp $root;
+        $root =~ s{^(.+?)/.*$}{$1};
+        debugf("cwd: %s, tar: $tar $xf$ar $tarfile", getcwd);
+        system "$tar $xf$ar $tarfile";
+        return $tempdir->subdir($root) if -d $root;
+        die "Bad archive: $tarfile";
+    }
+    else {
+        die "can't find tar";
+    }
+}
+
+sub unzip {
+    my $self = shift;
+    my $zipfile = shift;
+    if ( my $unzip = which('unzip') ) {
+        my $tempdir = $self->tmpdir;
+        my $guard = OrePAN::Archive::Chdir->new($tempdir);
+
+        my(undef, $root, @others) = `$unzip -t $zipfile`
+            or return undef;
+        chomp $root;
+        $root =~ s{^\s+testing:\s+(.+?)/\s+OK$}{$1};
+        system "$unzip $zipfile";
+        return $tempdir->subdir($root) if -d $root;        
+    }
+    else {
+        die "can't find unzip";
+    }
+}
+
+sub DESTROY {
+    my $self = shift;
+    $self->tmpdir->rmtree();
+}
+
+package 
+    OrePAN::Archive::Chdir;
+
+use Cwd qw/getcwd/;
+
+sub new {
+    my $class = shift;
+    my $dir = shift;
+    my $cwd = getcwd();
+    my $guard = sub { chdir($cwd) };
+    chdir($dir);
+    bless \$guard, $class;
+}
+
+sub DESTROY {
+    ${$_[0]}->();
 }
 
 1;
