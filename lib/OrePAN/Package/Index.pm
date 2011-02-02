@@ -1,9 +1,13 @@
 package OrePAN::Package::Index;
+
 use strict;
 use warnings;
 use utf8;
 use Mouse;
 use IO::Zlib;
+use CPAN::DistnameInfo;
+use version;
+use Log::Minimal;
 
 has filename => (
     is       => 'ro',
@@ -18,13 +22,20 @@ has data => (
 sub BUILD {
     my ($self, ) = @_;
     if (-f $self->filename) {
+        infof( "Loading %s", $self->filename);
         my $fh = IO::Zlib->new($self->filename, 'rb');
         while (<$fh>) { # skip headers
             last unless /\S/;
         }
         while (<$fh>) {
             my ($pkg, $ver, $path) = split /\s+/, $_;
-            $self->{data}->{$pkg} = [$ver, $path];
+            my $dist = CPAN::DistnameInfo->new($path);
+            $self->{data}->{$dist->dist} ||= {
+                path    => $path,
+                version => $dist->version,
+                modules => {},
+            };
+            $self->{data}->{$dist->dist}->{modules}->{$pkg} = $ver;
         }
         close $fh;
     }
@@ -32,17 +43,47 @@ sub BUILD {
 
 sub add {
     my ($self, $path, $data) = @_;
-    while (my ($pkg, $ver) = each %$data) {
-        $self->{data}->{$pkg} = [$ver, $path];
+    my $dist = CPAN::DistnameInfo->new($path);
+    if ( $self->{data}->{$dist->dist} ) {
+        if ( version->parse($dist->version) <= version->parse($self->{data}->{$dist->dist}->{version}) ) {
+            infof( "SKIP: already has newer version %s-%s: adding %s", $dist->dist, $self->{data}->{$dist->dist}->{version}, 
+                   $dist->version);
+            return;
+        }
+    }
+
+    infof( "Adding %s-%s", $dist->dist, $dist->version);
+    $self->{data}->{$dist->dist} = {
+        path    => $path,
+        version => $dist->version,
+        modules => $data,
+    };
+
+    for my $distname ( keys %{$self->data} ) {
+        next if $dist->dist eq $distname;
+        for my $pkg ( keys %$data ) {
+            die "'$pkg' is exists on $distname" if exists $self->data->{$distname}->{modules}->{$pkg}
+        }
     }
 }
 
 sub save {
     my ($self, ) = @_;
+
+    my %modules;
+    for my $distname ( keys %{$self->data} ) {
+        my $dist = $self->data->{$distname};
+        for my $module ( keys %{$dist->{modules}} ) {
+            die "'$module' is exists on $distname" if exists $modules{$module};
+            $modules{$module} = [ $dist->{modules}->{$module}, $dist->{path} ];
+        } 
+    }
+
+    infof( "Save %s", $self->filename);
     my $fh = IO::Zlib->new($self->filename, 'wb') or die $!;
     print {$fh} "File:         02packages.details.txt\n\n";
-    for my $key (sort keys %{$self->data}) {
-        print {$fh} sprintf("%s\t%s\t%s\n", $key, $self->{data}->{$key}->[0] || 'undef', $self->{data}->{$key}->[1]);
+    for my $key ( sort keys %modules ) {
+        print {$fh} sprintf("%s\t%s\t%s\n", $key, $modules{$key}->[0] || 'undef', $modules{$key}->[1]);
     }
     close $fh;
 }
