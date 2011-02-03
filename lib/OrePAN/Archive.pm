@@ -125,6 +125,7 @@ sub get_packages {
     my $meta = $self->meta || +{};
     my $ignore_dirs = $meta->{no_index} && $meta->{no_index}->{directory} ? $meta->{no_index}->{directory} : [];
     my @ignore_dirs = ref $ignore_dirs ? @$ignore_dirs : [$ignore_dirs];
+    push @ignore_dirs, "t","xt", 'contrib', 'examples','inc','share','private';
     infof("files");
     my $archive = $self->archive;
     my @files = @{$self->files()};
@@ -133,12 +134,12 @@ sub get_packages {
     for my $file (@files) {
         my $quote = quotemeta($archive);
         next if any { $file =~ m{^$quote/$_/} } @ignore_dirs;
-        next if $file !~ /\.pm$/;
+        next if $file !~ /(?:\.pm|\.pm\.PL)$/; #for common::sense
         infof("parsing: $file");
         my $module = Module::Metadata->new_from_file( $file );
         my $pkg = $module->name;
         my $ver = $module->version;
-        if ( !$pkg ) {
+        if ( !$pkg || $pkg eq 'main' ) {
             ($pkg, $ver) = _parse_version($file->slurp);
         }
         infof("parsed: %s version: %s", $pkg || 'unknown', $ver || 'none');
