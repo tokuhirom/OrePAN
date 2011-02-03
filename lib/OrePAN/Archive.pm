@@ -109,7 +109,7 @@ sub _parse_version($) {
         next if /^\s*(if|unless)/;
         if ( m{^ \s* package \s+ (\w[\w\:\']*) (?: \s+ (v?[0-9._]+) \s*)? ;  }x ) {
             $pkg = $1;
-            $version = $2 if defined $2;
+            $version = $2;
         } elsif (m{\$(?:\w[\w\:\']*::)?VERSION\s*=\s*(["']*)([0-9_.]+)\1}) {
             $version = $2;
         } elsif (/^\s*__END__/) {
@@ -117,7 +117,6 @@ sub _parse_version($) {
         }
         last if $pkg && $version;
     }
-    infof("parsed: %s version: %s", $pkg || 'unknown', $version || 'none');
     return ($pkg, $version);
 }
 
@@ -136,12 +135,13 @@ sub get_packages {
         next if any { $file =~ m{^$quote/$_/} } @ignore_dirs;
         next if $file !~ /\.pm$/;
         infof("parsing: $file");
-        my ($pkg, $ver) = _parse_version($file->slurp);
+        my $module = Module::Metadata->new_from_file( $file );
+        my $pkg = $module->name;
+        my $ver = $module->version;
         if ( !$pkg ) {
-            my $module = Module::Metadata->new_from_file( $file ) or next;
-             $pkg = $module->name;
-             $ver = $module->version;
+            ($pkg, $ver) = _parse_version($file->slurp);
         }
+        infof("parsed: %s version: %s", $pkg || 'unknown', $ver || 'none');
         if ($pkg) {
             $res{$pkg} = defined $ver ? "$ver" : "";
         }
