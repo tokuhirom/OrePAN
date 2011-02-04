@@ -196,6 +196,10 @@ sub DESTROY {
     $self->tmpdir->rmtree();
 }
 
+no Mouse;
+# FIXME This class has a 'meta' attribute. Cannot access to Mouse meta class.
+# __PACKAGE__->meta->make_immutable;
+
 package 
     OrePAN::Archive::Chdir;
 
