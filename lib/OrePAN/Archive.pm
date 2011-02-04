@@ -96,14 +96,14 @@ has name => (
     },
 );
 
-# Copy from ExtUtils::MM_Unix
+
 sub _parse_version($) {
     my $parsefile = shift;
     my $inpod = 0;
-    my $pkg;
-    my $version;
+    my @pkgs;
 
-    local $/ = "\n";
+    local $/ = "\x0a";
+    local $_;
     my $fh = $parsefile->openr;
 
     while (<$fh>) {
@@ -112,10 +112,15 @@ sub _parse_version($) {
         chop;
         next if /^\s*(if|unless)/;
         if ( m{^ \s* package \s+ (\w[\w\:\']*) (?: \s+ (v?[0-9._]+) \s*)? ;  }x ) {
-            $pkg = $1;
-            $version = $2;
+            push @pkgs, [$1, $2];
         }
         elsif ( m{(?<!\\) ([\$*]) (([\w\:\']*) \bVERSION)\b .* =}x ) {
+            my $sigil = $1;
+            my $varname = $2;
+            my $package = $3 || '';
+            $package =~ s!::$!!;
+
+            # Copy from ExtUtils::MM_Unix
             my $eval = qq{
                 package ExtUtils::MakeMaker::_version;
                 no strict;
@@ -128,23 +133,33 @@ sub _parse_version($) {
                     "version"->import;
                 } }
 
-                local $1$2;
-                \$$2=undef;
+                local $sigil$varname;
+                \$$varname=undef;
                 do {
                     $_
                 };
-                \$$2;
+                \$$varname;
             };
             local $^W = 0;
-            $version = eval($eval);  ## no critic
+            my $version = eval($eval);  ## no critic
             warn "Could not eval '$eval' in $parsefile: $@" if $@;
+            next if !$version;
+
+            push @pkgs, [$package, $version] if $package;
+            $pkgs[-1]->[1] = $version;
         }
         elsif (/^\s*__END__/) {
             last;
         }
-        last if $pkg && $version;
     }
-    return ($pkg, $version);
+    return if @pkgs == 0;
+
+    my $basename  = fileparse("$parsefile");
+    $basename =~ s/\..+$//;
+    my @candidates = sort { !$a->[1] <=> !$b->[1] }
+        grep { $_->[0] =~ m/$basename$/  } @pkgs;
+    return @{$candidates[0]} if @candidates;
+    return;
 }
 
 sub get_packages {
