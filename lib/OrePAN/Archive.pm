@@ -191,7 +191,7 @@ sub unzip {
     }
 }
 
-sub DESTROY {
+sub DEMOLISH {
     my $self = shift;
     $self->tmpdir->rmtree();
 }
