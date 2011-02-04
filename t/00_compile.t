@@ -1,4 +1,9 @@
 use strict;
-use Test::More tests => 1;
+use Test::More tests => 3;
 
-BEGIN { use_ok 'OrePAN' }
+use_ok $_ for qw/
+    OrePAN
+    OrePAN::Archive
+    OrePAN::Package::Index
+/;
+
