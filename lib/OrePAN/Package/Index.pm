@@ -37,6 +37,7 @@ sub add {
     }
 }
 
+# TODO need flock?
 sub save {
     my ($self, ) = @_;
     my $fh = IO::Zlib->new($self->filename, 'wb') or die $!;
