@@ -134,11 +134,12 @@ sub get_packages {
     for my $file (@files) {
         my $quote = quotemeta($archive);
         next if any { $file =~ m{^$quote/$_/} } @ignore_dirs;
-        next if $file !~ /\.pm(?:\.PL)?$/; #for common::sense
+        next if $file !~ /\.pm(?:\.PL)?$/;
         infof("parsing: $file");
         my $module = Module::Metadata->new_from_file( $file );
         my $pkg = $module->name;
         my $ver = $module->version;
+        # Module::Metadata cannot parse 'common::sense' package.
         if ( !$pkg || $pkg eq 'main' ) {
             ($pkg, $ver) = _parse_version($file->slurp);
         }
