@@ -6,6 +6,8 @@ name 'OrePAN';
 all_from 'orepan.pl';
 readme_markdown_from 'orepan.pl';
 
+# OrePAN should not depend to any XS modules, since this is a utility for operating CPAN modules.
+# It should works with FatPacker.
 requires 'JSON' => 2.27;
 requires 'YAML::Tiny';
 requires 'List::MoreUtils';
