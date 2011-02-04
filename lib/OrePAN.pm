@@ -13,7 +13,7 @@ __END__
 
 =head1 NAME
 
-OrePAN -
+OrePAN - Yet another DarkPAN manager
 
 =head1 SYNOPSIS
 
