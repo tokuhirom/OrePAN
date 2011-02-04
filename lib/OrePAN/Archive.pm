@@ -136,6 +136,7 @@ sub get_packages {
         next if any { $file =~ m{^$quote/$_/} } @ignore_dirs;
         next if $file !~ /\.pm$/;
         infof("parsing: $file");
+        # Module::Metadata cannot parse 'common::sense' package.
         my ($pkg, $ver) = _parse_version($file->slurp);
         if ( !$pkg ) {
             my $module = Module::Metadata->new_from_file( $file ) or next;
