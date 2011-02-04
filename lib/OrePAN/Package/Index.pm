@@ -45,7 +45,13 @@ sub add {
     my ($self, $path, $data) = @_;
     my $dist = CPAN::DistnameInfo->new($path);
     if ( $self->{data}->{$dist->dist} ) {
-        if ( version->parse($dist->version) <= version->parse($self->{data}->{$dist->dist}->{version}) ) {
+        my $p_version;
+        my $n_version;
+        eval {
+            $p_version = version->parse($self->{data}->{$dist->dist}->{version});
+            $n_version = version->parse($dist->version);
+        };
+        if ( !$@ && $n_version <= $p_version ) {
             infof( "SKIP: already has newer version %s-%s: adding %s", $dist->dist, $self->{data}->{$dist->dist}->{version}, 
                    $dist->version);
             return;
