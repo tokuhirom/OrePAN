@@ -6,6 +6,11 @@ use OrePAN::Package::Index;
 use File::Temp;
 use OrePAN::Archive;
 
+$Log::Minimal::PRINT = sub {
+    my ( $time, $type, $message, $trace) = @_;
+    note "$time [$type] $message at $trace";
+};
+
 my $tmp = File::Temp->new();
 
 # make index
