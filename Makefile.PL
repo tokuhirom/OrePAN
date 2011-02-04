@@ -16,7 +16,6 @@ requires 'IO::Zlib';
 requires 'Mouse';
 requires 'Path::Class';
 requires 'LWP::UserAgent';
-requires 'Module::Metadata';
 requires 'File::Which';
 requires 'Cwd';
 requires 'File::Basename';

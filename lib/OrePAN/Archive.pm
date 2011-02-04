@@ -9,7 +9,6 @@ use YAML::Tiny ();
 use JSON ();
 use List::MoreUtils qw/any/;
 use Log::Minimal;
-use Module::Metadata;
 use File::Basename;
 use File::Temp;
 use Path::Class;
@@ -21,7 +20,6 @@ coerce 'File' => from 'Str' => via { Path::Class::file(realpath($_)) };
 
 subtype 'Dir' => as class_type('Path::Class::Dir');
 coerce 'Dir' => from 'Str' => via { Path::Class::dir(realpath($_)) };
-
 
 has filename => (
     is       => 'ro',
@@ -98,21 +96,50 @@ has name => (
     },
 );
 
+# Copy from ExtUtils::MM_Unix
 sub _parse_version($) {
-    my $content = shift;
+    my $parsefile = shift;
     my $inpod = 0;
     my $pkg;
     my $version;
-    for (split /\n/, $content) {
+
+    local $/ = "\n";
+    my $fh = $parsefile->openr;
+
+    while (<$fh>) {
         $inpod = /^=(?!cut)/ ? 1 : /^=cut/ ? 0 : $inpod;
         next if $inpod || /^\s*#/;
+        chop;
         next if /^\s*(if|unless)/;
         if ( m{^ \s* package \s+ (\w[\w\:\']*) (?: \s+ (v?[0-9._]+) \s*)? ;  }x ) {
             $pkg = $1;
             $version = $2;
-        } elsif (m{\$(?:\w[\w\:\']*::)?VERSION\s*=\s*(["']*)([0-9_.]+)\1}) {
-            $version = $2;
-        } elsif (/^\s*__END__/) {
+        }
+        elsif ( m{(?<!\\) ([\$*]) (([\w\:\']*) \bVERSION)\b .* =}x ) {
+            my $eval = qq{
+                package ExtUtils::MakeMaker::_version;
+                no strict;
+                BEGIN { eval {
+                    # Ensure any version() routine which might have leaked
+                    # into this package has been deleted.  Interferes with
+                    # version->import()
+                    undef *version;
+                    require version;
+                    "version"->import;
+                } }
+
+                local $1$2;
+                \$$2=undef;
+                do {
+                    $_
+                };
+                \$$2;
+            };
+            local $^W = 0;
+            $version = eval($eval);  ## no critic
+            warn "Could not eval '$eval' in $parsefile: $@" if $@;
+        }
+        elsif (/^\s*__END__/) {
             last;
         }
         last if $pkg && $version;
@@ -125,7 +152,7 @@ sub get_packages {
     my $meta = $self->meta || +{};
     my $ignore_dirs = $meta->{no_index} && $meta->{no_index}->{directory} ? $meta->{no_index}->{directory} : [];
     my @ignore_dirs = ref $ignore_dirs ? @$ignore_dirs : [$ignore_dirs];
-    push @ignore_dirs, "t","xt", 'contrib', 'examples','inc','share','private';
+    push @ignore_dirs, "t","xt", 'contrib', 'examples','inc','share','private', 'blib';
     infof("files");
     my $archive = $self->archive;
     my @files = @{$self->files()};
@@ -136,13 +163,7 @@ sub get_packages {
         next if any { $file =~ m{^$quote/$_/} } @ignore_dirs;
         next if $file !~ /\.pm(?:\.PL)?$/;
         infof("parsing: $file");
-        my $module = Module::Metadata->new_from_file( $file );
-        my $pkg = $module->name;
-        my $ver = $module->version;
-        # Module::Metadata cannot parse 'common::sense' package.
-        if ( !$pkg || $pkg eq 'main' ) {
-            ($pkg, $ver) = _parse_version($file->slurp);
-        }
+        my ( $pkg, $ver) = _parse_version($file);
         infof("parsed: %s version: %s", $pkg || 'unknown', $ver || 'none');
         if ($pkg) {
             $res{$pkg} = defined $ver ? "$ver" : "";
