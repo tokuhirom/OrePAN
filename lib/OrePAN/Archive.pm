@@ -143,6 +143,9 @@ sub _parse_version($) {
             local $^W = 0;
             my $version = eval($eval);  ## no critic
             warn "Could not eval '$eval' in $parsefile: $@" if $@;
+            if ( ! ref($version) ) {
+                $version = eval { version->new($version) };
+            }
             next if !$version;
 
             push @pkgs, [$package, $version] if $package;
