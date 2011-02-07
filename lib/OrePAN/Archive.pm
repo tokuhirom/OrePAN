@@ -111,6 +111,7 @@ sub _parse_version($) {
         next if $inpod || /^\s*#/;
         chop;
         next if /^\s*(if|unless)/;
+        last if ( /\b__(?:END|DATA)__\b/ && $parsefile !~ m!\.PL$! ); # PL files may well have code after __DATA__
         if ( m{^ \s* package \s+ (\w[\w\:\']*) (?: \s+ (v?[0-9._]+) \s*)? (?:\s+)?;  }x ) {
             push @pkgs, [$1, $2];
         }
