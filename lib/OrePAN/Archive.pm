@@ -111,7 +111,7 @@ sub _parse_version($) {
         next if $inpod || /^\s*#/;
         chop;
         next if /^\s*(if|unless)/;
-        if ( m{^ \s* package \s+ (\w[\w\:\']*) (?: \s+ (v?[0-9._]+) \s*)? ;  }x ) {
+        if ( m{^ \s* package \s+ (\w[\w\:\']*) (?: \s+ (v?[0-9._]+) \s*)? (?:\s+)?;  }x ) {
             push @pkgs, [$1, $2];
         }
         elsif ( m{(?<!\\) ([\$*]) (([\w\:\']*) \bVERSION)\b .* =}x ) {
