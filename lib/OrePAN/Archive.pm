@@ -150,7 +150,7 @@ sub _parse_version($) {
             next if !$version;
 
             push @pkgs, [$package, $version] if $package;
-            $pkgs[-1]->[1] = $version;
+            $pkgs[-1]->[1] = $version if @pkgs;
         }
         elsif (/^\s*__END__/) {
             last;
