@@ -9,13 +9,12 @@
 ^blib/
 ^pm_to_blib
 ^MakeMaker-\d
-\.gz$
+^[^/]+\.gz$
 \.cvsignore
 ^t/perlcritic
 ^tools/
 \.svn/
 ^[^/]+\.yaml$
-^[^/]+\.pl$
 ^\.shipit$
 \.sw[po]$
 ^Build$
@@ -24,3 +23,4 @@
 cover_db
 nytprof
 perltidy.ERR$
+^OrePAN-[0-9._-]+/
