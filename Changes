@@ -1,5 +1,10 @@
 Revision history for Perl extension OrePAN
 
+0.02
+
+    - added workaround for C::XSAccessor(kazeburo)
+    - doc enhancement
+
 0.01_01
 
     - releng
