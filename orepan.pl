@@ -18,7 +18,7 @@ use Log::Minimal;
 use LWP::UserAgent;
 use File::Temp;
 
-our $VERSION='0.03';
+our $VERSION='0.04';
 
 my $pauseid = 'DUMMY';
 GetOptions(

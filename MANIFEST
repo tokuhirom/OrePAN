@@ -20,6 +20,7 @@ MANIFEST			This list of files
 META.yml
 orepan.pl
 orepan_index.pl
+README
 t/00_compile.t
 t/01_make_index.t
 t/dummy-cpan/Foo-Bar-0.01.tar.gz
