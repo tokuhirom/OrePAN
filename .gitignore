@@ -14,6 +14,5 @@ pm_to_blib
 tags
 MYMETA.*
 META.json
-README
 ^inc/
 OrePAN-*/

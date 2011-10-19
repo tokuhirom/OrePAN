@@ -14,6 +14,7 @@ inc/Module/Install/WriteAll.pm
 lib/OrePAN.pm
 lib/OrePAN/Archive.pm
 lib/OrePAN/Package/Index.pm
+LICENSE
 Makefile.PL
 MANIFEST			This list of files
 META.yml
