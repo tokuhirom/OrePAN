@@ -1,5 +1,9 @@
 Revision history for Perl extension OrePAN
 
+0.03
+
+    - modernize package
+
 0.02
 
     - added workaround for C::XSAccessor(kazeburo)
