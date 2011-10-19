@@ -24,3 +24,12 @@ cover_db
 nytprof
 perltidy.ERR$
 ^OrePAN-[0-9._-]+/
+^README.pod$
+^README.mkdn$
+^tags$
+^MYMETA\.
+\b_build
+^MANIFEST\.SKIP
+\b\.gitignore
+\.bak$
+^OrePAN-

@@ -8,11 +8,9 @@ inc/Module/Install/External.pm
 inc/Module/Install/Fetch.pm
 inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
-inc/Module/Install/ReadmeMarkdownFromPod.pm
 inc/Module/Install/Scripts.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
-inc/Pod/Markdown.pm
 lib/OrePAN.pm
 lib/OrePAN/Archive.pm
 lib/OrePAN/Package/Index.pm
@@ -21,11 +19,12 @@ MANIFEST			This list of files
 META.yml
 orepan.pl
 orepan_index.pl
-README.mkdn
 t/00_compile.t
 t/01_make_index.t
 t/dummy-cpan/Foo-Bar-0.01.tar.gz
 xt/01_podspell.t
 xt/02_perlcritic.t
 xt/03_pod.t
-xt/perlcriticrc
+xt/04_minimum_version.t
+xt/05_cpan_meta.t
+xt/06_meta_author.t

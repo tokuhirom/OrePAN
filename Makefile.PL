@@ -3,6 +3,7 @@ use Module::Install::AuthorTests;
 
 name 'OrePAN';
 all_from 'orepan.pl';
+abstract 'my own Perl Archive Network.';
 
 # OrePAN should not depend to any XS modules, since this is a utility for operating CPAN modules.
 # It should works with FatPacker.
