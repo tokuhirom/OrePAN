@@ -51,10 +51,7 @@ sub build_index {
     # make index
     infof('make index');
     $index->add(
-        File::Spec->catfile(
-            substr( $pauseid, 0, 1 ), substr( $pauseid, 0, 2 ),
-            $pauseid, basename($file)
-        ),
+        $parsed,
         \%packages
     );
 
