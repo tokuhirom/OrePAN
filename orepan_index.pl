@@ -7,6 +7,7 @@ use lib 'lib';
 use 5.008001;
 use OrePAN::Package::Index;
 use OrePAN::Archive;
+use OrePAN::Package::Whois;
 
 use Carp ();
 use Pod::Usage qw/pod2usage/;
@@ -16,8 +17,6 @@ use File::Basename;
 use Path::Class;
 use Log::Minimal;
 use File::Find;
-
-use XML::LibXML;
 
 our $VERSION='0.01';
 
@@ -34,8 +33,7 @@ my $pkg_file = $repository->file('modules', '02packages.details.txt.gz');
 my $index = OrePAN::Package::Index->new(filename => "$pkg_file");
 
 my $whois_file = $repository->file('authors', '00whois.xml');
-my $doc = XML::LibXML::Document->new('1.0', 'UTF-8');
-$doc->setDocumentElement(my $whois = $doc->createElement('cpan-whois'));
+my $whois = OrePAN::Package::Whois->new(filename => "$whois_file");
 
 sub build_index {
     my $file = $_;
@@ -60,19 +58,16 @@ sub build_index {
         \%packages
     );
 
-    $whois->addChild(my $cpanid = XML::LibXML::Element->new('cpanid'));
-    $cpanid->addChild(XML::LibXML::Element->new('id'))->appendText($pauseid);
-    $cpanid->addChild(XML::LibXML::Element->new('type'))->appendText('author');
-    $cpanid->addChild(XML::LibXML::Element->new('has_cpandir'))->appendText('1');
+    $whois->add(cpanid => $pauseid);
 }
 
 find({ wanted => \&build_index, no_chdir => 1 }, $authordir );
 $index->save();
-$doc->toFile($whois_file, 1);
+$whois->save();
 
 ###
 my $dummy_mailrc = $repository->file('authors', '01mailrc.txt.gz');
-OrePAN::Package::Index->new(filename => "dummy_mailrc")->save();
+OrePAN::Package::Index->new(filename => "$dummy_mailrc")->save();
 
 __END__
 

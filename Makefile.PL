@@ -23,6 +23,7 @@ requires 'File::Find';
 requires 'CPAN::DistnameInfo';
 requires 'File::Sync';
 requires 'File::Temp';
+requires 'XML::LibXML';
 
 requires_external_bin('tar');
 requires_external_bin('unzip');
