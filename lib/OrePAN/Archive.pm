@@ -161,7 +161,7 @@ sub _parse_version($) {
     my $basename  = fileparse("$parsefile");
     $basename =~ s/\..+$//;
     my @candidates = sort { !$a->[1] <=> !$b->[1] }
-        grep { $_->[0] =~ m/$basename$/  } @pkgs;
+        grep { $_->[0] =~ m/($basename)$/ || $basename eq 'version' } @pkgs;
     return @{$candidates[0]} if @candidates;
     return;
 }
