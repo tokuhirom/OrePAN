@@ -7,6 +7,7 @@ use lib 'lib';
 use 5.008001;
 use OrePAN::Package::Index;
 use OrePAN::Archive;
+use OrePAN::Package::Whois;
 
 use Carp ();
 use Pod::Usage qw/pod2usage/;
@@ -31,12 +32,17 @@ $repository->subdir('modules')->mkpath;
 my $pkg_file = $repository->file('modules', '02packages.details.txt.gz');
 my $index = OrePAN::Package::Index->new(filename => "$pkg_file");
 
+my $whois_file = $repository->file('authors', '00whois.xml');
+my $whois = OrePAN::Package::Whois->new(filename => "$whois_file");
+
 sub build_index {
     my $file = $_;
     return if ! -f $file;
     return if $file !~ m!(?:\.zip|\.tar|\.tar\.gz|\.tgz)$!i;
+
+    (my $parsed = $file) =~ s/^\Q$authordir\E\/id\///;
     
-    my $pauseid = [split /\//,$file]->[-2];
+    my $pauseid = [split /\//, $parsed]->[2];
 
     my $archive = OrePAN::Archive->new(filename => $file);
     infof("get package names of %s", $file);
@@ -45,17 +51,16 @@ sub build_index {
     # make index
     infof('make index');
     $index->add(
-        File::Spec->catfile(
-            substr( $pauseid, 0, 1 ), substr( $pauseid, 0, 2 ),
-            $pauseid, basename($file)
-        ),
+        $parsed,
         \%packages
     );
 
+    $whois->add(cpanid => $pauseid);
 }
 
 find({ wanted => \&build_index, no_chdir => 1 }, $authordir );
 $index->save();
+$whois->save();
 
 __END__
 
@@ -67,7 +72,7 @@ orepan_index.pl - index builder
 
 =head1 SYNOPSIS
 
-    % build_index.pl --repository=/path/to/repository
+    % orepan_index.pl --repository=/path/to/repository
 
     # and so...
     % cpanm --mirror-only --mirror=file:///path/to/repository Foo
