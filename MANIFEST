@@ -14,6 +14,7 @@ inc/Module/Install/WriteAll.pm
 lib/OrePAN.pm
 lib/OrePAN/Archive.pm
 lib/OrePAN/Package/Index.pm
+lib/OrePAN/Package/Whois.pm
 LICENSE
 Makefile.PL
 MANIFEST			This list of files
@@ -23,6 +24,7 @@ orepan_index.pl
 README
 t/00_compile.t
 t/01_make_index.t
+t/02_make_whois.t
 t/dummy-cpan/Foo-Bar-0.01.tar.gz
 xt/01_podspell.t
 xt/02_perlcritic.t
