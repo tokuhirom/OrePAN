@@ -25,12 +25,12 @@ sub add {
     <has_cpandir>1</has_cpandir>
   </cpanid>
 EOS
-    chomp $self->{data};
 }
 
 sub save {
     my ($self, ) = @_;
     my $cont = $self->data;
+    chomp $cont;
     open my $fh, '>', $self->filename or die $!;
     print $fh <<"EOS";
 <?xml version="1.0" encoding="UTF-8"?>
