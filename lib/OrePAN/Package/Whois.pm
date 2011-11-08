@@ -4,34 +4,41 @@ use strict;
 use warnings;
 use utf8;
 use Mouse;
-use XML::LibXML;
 
 has filename => (
     is       => 'ro',
     required => 1,
 );
 
-has doc => (
+has data => (
     is      => 'ro',
-    default => sub {
-        my $doc = XML::LibXML::Document->new('1.0', 'UTF-8');
-        $doc->setDocumentElement($doc->createElement('cpan-whois'));
-        $doc;
-    },
+    isa     => 'Str',
+    default => '',
 );
 
 sub add {
     my ($self, %data) = @_;
-    my $whois = $self->doc->documentElement();
-    $whois->addChild(my $cpanid = XML::LibXML::Element->new('cpanid'));
-    $cpanid->addChild(XML::LibXML::Element->new('id'))->appendText($data{cpanid});
-    $cpanid->addChild(XML::LibXML::Element->new('type'))->appendText('author');
-    $cpanid->addChild(XML::LibXML::Element->new('has_cpandir'))->appendText('1');
+    $self->{data} .= <<"EOS";
+  <cpanid>
+    <id>$data{cpanid}</id>
+    <type>author</type>
+    <has_cpandir>1</has_cpandir>
+  </cpanid>
+EOS
+    chomp $self->{data};
 }
 
 sub save {
     my ($self, ) = @_;
-    $self->doc->toFile($self->filename, 1);
+    my $cont = $self->data;
+    open my $fh, '>', $self->filename or die $!;
+    print $fh <<"EOS";
+<?xml version="1.0" encoding="UTF-8"?>
+<cpan-whois>
+$cont
+</cpan-whois>
+EOS
+    close $fh;
 }
 
 no Mouse; __PACKAGE__->meta->make_immutable;
