@@ -62,10 +62,6 @@ find({ wanted => \&build_index, no_chdir => 1 }, $authordir );
 $index->save();
 $whois->save();
 
-###
-my $dummy_mailrc = $repository->file('authors', '01mailrc.txt.gz');
-OrePAN::Package::Index->new(filename => "$dummy_mailrc")->save();
-
 __END__
 
 =encoding utf8
