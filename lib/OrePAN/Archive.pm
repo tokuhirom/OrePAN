@@ -123,7 +123,8 @@ sub _parse_version($) {
 
             # Copy from ExtUtils::MM_Unix
             my $eval = qq{
-                package ExtUtils::MakeMaker::_version;
+                package 
+                  ExtUtils::MakeMaker::_version;
                 no strict;
                 BEGIN { eval {
                     # Ensure any version() routine which might have leaked
