@@ -23,12 +23,13 @@ our $VERSION='0.04';
 my $pauseid = 'DUMMY';
 GetOptions(
     'p|pauseid=s' => sub { $pauseid = uc $_[1] },
-    'd|destination=s' => \my $destination
+    'd|destination=s' => \my $destination,
+    'h|help' => \my $help,
 );
-pod2usage() unless $destination;
+pod2usage(-verbose=>1) unless $destination;
 
 my ($pkg) = @ARGV;
-$pkg or pod2usage();
+$pkg or pod2usage(-verbose=>1);
 
 my $tmp;
 if ($pkg =~ m{^https?://}) {
@@ -74,7 +75,7 @@ __END__
 
 =head1 NAME
 
-orepan.pl - DarkPAN manager
+orepan.pl - yet another CPAN mirror aka DarkPAN repository manager
 
 =head1 SYNOPSIS
 

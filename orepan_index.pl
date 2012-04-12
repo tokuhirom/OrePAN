@@ -22,8 +22,10 @@ our $VERSION='0.01';
 
 GetOptions(
     'r|repository=s' => \my $repository, 
+    'h|help' => \my $help,
 );
-$repository or pod2usage();
+pod2usage(-verbose=>1) if $help;
+$repository or pod2usage(-verbose=>1);
 
 $repository = dir($repository);
 my $authordir = $repository->subdir('authors');
@@ -68,7 +70,7 @@ __END__
 
 =head1 NAME
 
-orepan_index.pl - DarkPAN index builder
+orepan_index.pl - yet another CPAN mirror aka DarkPAN index builder
 
 =head1 SYNOPSIS
 
