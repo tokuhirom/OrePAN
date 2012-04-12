@@ -22,8 +22,10 @@ our $VERSION='0.01';
 
 GetOptions(
     'r|repository=s' => \my $repository, 
+    'h|help' => \my $help,
 );
-$repository or pod2usage();
+pod2usage(-verbose=>1) if $help;
+$repository or pod2usage(-verbose=>1);
 
 $repository = dir($repository);
 my $authordir = $repository->subdir('authors');
@@ -68,17 +70,45 @@ __END__
 
 =head1 NAME
 
-orepan_index.pl - index builder
+orepan_index.pl - yet another CPAN mirror aka DarkPAN index builder
 
 =head1 SYNOPSIS
 
+    # make directory
+    % mkdir -p /path/to/repository/{modules,authors}
+    # copy CPAN mouldes to the directory
+    % cp MyModule-0.03.tar.gz /path/to/repository/authors/id/A/AB/ABC/
+
+    # make index file
     % orepan_index.pl --repository=/path/to/repository
 
-    # and so...
+    # remove module and recreate index
+    % rm /path/to/repository/authors/id/A/AB/ABC/MyModule-0.04.tar.gz
+    % orepan_index.pl --repository=/path/to/repository
+
+    # and use it
     % cpanm --mirror-only --mirror=file:///path/to/repository Foo
 
 =head1 DESCRIPTION
 
+OrePAN is yet another CPAN mirror aka DarkPAN repository manager.
+
+orepan_index.pl is CPAN mirror aka DarkPAN index builder. 
+orepan_index.pl parses all tarballs in specified repository directory, and makes 02packages.txt.gz file.
+
+You can use the directory aka DarkPAN with `cpanm --mirror`.
+
+If you want to add other mouldes to repository in one command, you can use L<orepan.pl>
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<--repository>
+
+Set a directory that use as DarkPAN repository
+
+=back
 
 =head1 AUTHOR
 
