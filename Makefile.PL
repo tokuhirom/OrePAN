@@ -3,11 +3,9 @@ use Module::Install::AuthorTests;
 
 name 'OrePAN';
 all_from 'orepan.pl';
-abstract 'my own Perl Archive Network.';
+abstract 'yet another CPAN mirror aka DarkPAN repository manager';
 license 'perl';
 
-# OrePAN should not depend to any XS modules, since this is a utility for operating CPAN modules.
-# It should works with FatPacker.
 requires 'JSON' => 2.27;
 requires 'YAML::Tiny';
 requires 'List::MoreUtils';
@@ -21,7 +19,6 @@ requires 'Cwd';
 requires 'File::Basename';
 requires 'File::Find';
 requires 'CPAN::DistnameInfo';
-requires 'File::Sync';
 requires 'File::Temp';
 
 requires_external_bin('tar');

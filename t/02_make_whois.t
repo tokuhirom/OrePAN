@@ -4,6 +4,7 @@ use utf8;
 use Test::More;
 use OrePAN::Package::Whois;
 use File::Temp;
+use IO::File;
 
 my $tmp = File::Temp->new();
 
