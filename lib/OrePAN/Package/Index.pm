@@ -93,10 +93,10 @@ sub save {
     # partion with target file.
     my $tmp = mktemp($self->filename . '.XXXXXX');
 
-    my $fh = IO::Zlib->new($tmp, 'wb') or die $!;
-    print {$fh} "File:         02packages.details.txt\n\n";
+    my $fh = IO::Zlib->new($tmp,'wb') or die $!;
+    $fh->print("File:         02packages.details.txt\n\n");
     for my $key ( sort keys %modules ) {
-        print {$fh} sprintf("%s\t%s\t%s\n", $key, $modules{$key}->[0] || 'undef', $modules{$key}->[1]);
+        $fh->print(sprintf("%s\t%s\t%s\n", $key, $modules{$key}->[0] || 'undef', $modules{$key}->[1]));
     }
     $fh->close();
 
