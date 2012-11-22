@@ -189,6 +189,15 @@ sub get_packages {
             $res{$pkg} = defined $ver ? "$ver" : "";
         }
     }
+    for my $pkg (keys %{ $meta->{provides} || {} }) {
+        require version;
+        my $ver = do {
+            my $version = $meta->{provides}->{$pkg}->{version};
+            defined $version ? eval { version->new($version) } : undef;
+        };
+        infof("provides: %s version: %s", $pkg, $ver || 'none');
+        $res{$pkg} = defined $ver ? "$ver" : "";
+    }
     return wantarray ? %res : \%res;
 }
 
