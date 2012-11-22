@@ -106,7 +106,7 @@ sub _parse_version($) {
     local $_;
     my $fh = $parsefile->openr;
 
-    while (<$fh>) {
+    LOOP: while (<$fh>) {
         $inpod = /^=(?!cut)/ ? 1 : /^=cut/ ? 0 : $inpod;
         next if $inpod || /^\s*#/;
         chop;
@@ -115,11 +115,18 @@ sub _parse_version($) {
         if ( m{^ \s* package \s+ (\w[\w\:\']*) (?: \s+ (v?[0-9._]+) \s*)? (?:\s+)?;  }x ) {
             push @pkgs, [$1, $2];
         }
-        elsif ( m{(?<!\\) ([\$*]) (([\w\:\']*) \bVERSION)\b .* =}x ) {
+        elsif ( m{(?<!\\) ([\$*]) (([\w\:\']*) \bVERSION)\b (.*) =}x ) {
             my $sigil = $1;
             my $varname = $2;
             my $package = $3 || '';
+            my $rest = $4;
             $package =~ s!::$!!;
+
+            # do not match comparing version number
+            # like: $Text::Diff::VERSION >= 0.03
+            if ($rest =~ /[=><]\s*$/) {
+                next LOOP;
+            }
 
             # Copy from ExtUtils::MM_Unix
             my $eval = qq{
@@ -144,6 +151,7 @@ sub _parse_version($) {
             };
             local $^W = 0;
             my $version = eval($eval);  ## no critic
+            warn $eval if $@;
             warnf("Could not eval '$eval' in $parsefile: $@") if $@;
             if ( ! ref($version) ) {
                 $version = eval { version->new($version) };

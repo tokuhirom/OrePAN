@@ -25,6 +25,8 @@ README
 t/00_compile.t
 t/01_make_index.t
 t/02_make_whois.t
+t/03__parse_version.t
+t/dat/Base.pm
 t/dummy-cpan/Foo-Bar-0.01.tar.gz
 xt/01_podspell.t
 xt/02_perlcritic.t
