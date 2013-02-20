@@ -4,6 +4,7 @@ use warnings;
 use utf8;
 use lib 'lib';
 use 5.008001;
+use OrePAN;
 use OrePAN::Package::Index;
 use OrePAN::Archive;
 
@@ -18,15 +19,20 @@ use Log::Minimal;
 use LWP::UserAgent;
 use File::Temp;
 
-our $VERSION='0.06';
+our $VERSION=$OrePAN::VERSION;
 
 my $pauseid = 'DUMMY';
 GetOptions(
     'p|pauseid=s' => sub { $pauseid = uc $_[1] },
     'd|destination=s' => \my $destination,
     'h|help' => \my $help,
+    'v|version' => \my $version,
 );
 pod2usage(-verbose=>1) unless $destination;
+if ($version) {
+    print "$VERSION\n";
+    exit 0;
+}
 
 my ($pkg) = @ARGV;
 $pkg or pod2usage(-verbose=>1);
