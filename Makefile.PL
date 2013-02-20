@@ -2,8 +2,7 @@ use inc::Module::Install;
 use Module::Install::AuthorTests;
 
 name 'OrePAN';
-all_from 'orepan.pl';
-version_from 'lib/OrePAN.pm';
+all_from 'lib/OrePAN.pm';
 abstract 'yet another CPAN mirror aka DarkPAN repository manager';
 license 'perl';
 

@@ -1,5 +1,9 @@
 Revision history for Perl extension OrePAN
 
+0.07
+
+    - re-package to install from CPAN more easily.
+
 0.06
 
     - suppress warnings at version number comparision.
