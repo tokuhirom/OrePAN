@@ -71,7 +71,8 @@ has meta => (
         my @files = @{$self->files};
         infof("retrieve meta data");
         if ( my ($json) = grep /META.json$/, @files ) {
-             JSON::decode_json($json->slurp);
+            my $data = $json->slurp;
+            JSON::decode_json($data);
         }
         elsif ( my ($yml) = grep /META\.yml/, @files ) {
             eval{
