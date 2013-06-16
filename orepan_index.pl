@@ -18,7 +18,7 @@ use Path::Class;
 use Log::Minimal;
 use File::Find;
 
-our $VERSION='0.01';
+our $VERSION='0.08';
 
 GetOptions(
     'r|repository=s' => \my $repository, 
