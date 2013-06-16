@@ -6,20 +6,7 @@ all_from 'lib/OrePAN.pm';
 abstract 'yet another CPAN mirror aka DarkPAN repository manager';
 license 'perl';
 
-requires 'JSON' => 2.27;
-requires 'YAML::Tiny';
-requires 'List::MoreUtils';
-requires 'Log::Minimal' => 0.02;
-requires 'IO::Zlib';
-requires 'Mouse';
-requires 'Path::Class';
-requires 'LWP::UserAgent';
-requires 'File::Which';
-requires 'Cwd';
-requires 'File::Basename';
-requires 'File::Find';
-requires 'CPAN::DistnameInfo';
-requires 'File::Temp';
+cpanfile;
 
 requires_external_bin('tar');
 requires_external_bin('unzip');
